@@ -24,7 +24,7 @@ Install Laravel dependencies
 
 RUN composer install --no-dev --optimize-autoloader
 
-IMPORTANT: clear cached config so Render env works
+Clear cached config (VERY IMPORTANT)
 
 RUN rm -f bootstrap/cache/*.php
 
