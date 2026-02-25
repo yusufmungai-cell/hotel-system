@@ -10,13 +10,16 @@ WORKDIR /var/www/html
 
 COPY . /var/www/html
 
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# IMPORTANT: change apache root to public
+RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
+RUN sed -i 's!/var/www/!/var/www/html/public!g' /etc/apache2/apache2.conf
 
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN composer install --no-dev --optimize-autoloader
 
 RUN rm -f bootstrap/cache/*.php
 
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chown -R www-data:www-data storage bootstrap/cache
 
 EXPOSE 80
 CMD ["apache2-foreground"]
