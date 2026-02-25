@@ -1,36 +1,36 @@
 FROM php:8.2-apache
 
-# # Install system dependencies
-RUN apt-get update && apt-get install -y \
-    git unzip curl \
-    libzip-dev libpng-dev libonig-dev libxml2-dev \
-    libpq-dev \
-    && docker-php-ext-install pdo_mysql pdo_pgsql pgsql mbstring zip exif pcntl bcmath gd
+Install system dependencies
 
-# Enable apache rewrite
+RUN apt-get update && apt-get install -y 
+git unzip curl libzip-dev libpng-dev libonig-dev libxml2-dev libpq-dev 
+&& docker-php-ext-install pdo_mysql pdo_pgsql pgsql mbstring zip exif pcntl bcmath gd
+
+Enable Apache rewrite
+
 RUN a2enmod rewrite
 
-# Set working directory
 WORKDIR /var/www/html
 
-# Copy project
+Copy project
+
 COPY . /var/www/html
 
-# Install composer
+Install composer
+
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Install Laravel dependencies
+Install Laravel dependencies
+
 RUN composer install --no-dev --optimize-autoloader
 
-# Fix permissions
+IMPORTANT: clear cached config so Render env works
+
+RUN rm -f bootstrap/cache/*.php
+
+Set permissions
+
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Apache config for Laravel
-RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
-
 EXPOSE 80
-CMD php artisan config:clear && \
-    php artisan cache:clear && \
-    php artisan view:clear && \
-    php artisan migrate --force && \
-    apache2-foreground
+CMD ["apache2-foreground"]
