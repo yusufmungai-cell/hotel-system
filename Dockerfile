@@ -28,4 +28,5 @@ RUN npm run build
 RUN chown -R www-data:www-data storage bootstrap/cache
 RUN chmod -R 775 storage bootstrap/cache
 
+RUN php artisan config:clear && php artisan route:clear && php artisan view:clear
 EXPOSE 80
